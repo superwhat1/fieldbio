@@ -6,6 +6,7 @@ Metadata:
 The data summarizes vegetative and reproductive biomass measurements taken for Lythrum salicaria plants grown and harvested from a common garden at Queen’s University Biological Station (QUBS) in 2017. These plants were grown from seed in a greenhouse in May and June 2017, with up to 12 replicates from each maternal seed family. Families were either sourced from an experiment on Bracken Tract at QUBS where natural herbivory was manipulated during the summer of 2016, or from a series of populations along a geographic transect through Ontario, New York State, Pennsylvania, and Virginia.
 
 Variables
+
     BLOCK: Physical location in the QUBS common garden. There are a total of 24 blocks, 12 for each source.
     ID: Physical location within the block. Blocks were numbered 1-100 for the M blocks and 1-200 for the E blocks; some blocks have slightly larger ranges.
     BL_ID: Column created for merging datasets by combining BLOCK and ID columns
