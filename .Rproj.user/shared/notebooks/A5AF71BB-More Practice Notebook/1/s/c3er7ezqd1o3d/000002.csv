@@ -1,0 +1,4 @@
+"0","```r
+library(ggplot2)
+qplot(x=speed,y=dist,data=cars)
+```"

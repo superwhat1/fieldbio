@@ -1,0 +1,2 @@
+"0","ggplot(data = NMDS.data, aes(y = NMDS2, x = NMDS1))+ "
+"0","    geom_point( aes(color = NMDS.data$Population,shape = NMDS.data$Location), size = 1.5,alpha=0.6)"

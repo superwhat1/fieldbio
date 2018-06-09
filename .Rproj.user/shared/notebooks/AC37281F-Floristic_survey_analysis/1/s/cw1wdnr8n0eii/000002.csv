@@ -1,0 +1,48 @@
+"0","library(tidyverse)"
+"2","[37m── [1mAttaching packages[22m ──────────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──[39m
+"
+"2","[37m[32m✔[37m [34mggplot2[37m 2.2.1     [32m✔[37m [34mpurrr  [37m 0.2.4
+[32m✔[37m [34mtibble [37m 1.4.1     [32m✔[37m [34mdplyr  [37m 0.7.4
+[32m✔[37m [34mtidyr  [37m 0.7.2     [32m✔[37m [34mstringr[37m 1.2.0
+[32m✔[37m [34mreadr  [37m 1.1.1     [32m✔[37m [34mforcats[37m 0.2.0[39m
+"
+"2","[37m── [1mConflicts[22m ─────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+[31m✖[37m [34mtidyr[37m::[32mexpand()[37m masks [34mMatrix[37m::expand()
+[31m✖[37m [34mdplyr[37m::[32mfilter()[37m masks [34mstats[37m::filter()
+[31m✖[37m [34mdplyr[37m::[32mlag()[37m    masks [34mstats[37m::lag()[39m
+"
+"0","library(vegan)"
+"2","Loading required package: permute
+"
+"2","Loading required package: lattice
+"
+"2","This is vegan 2.5-2
+"
+"0","library(lmtest)"
+"2","Loading required package: zoo
+"
+"2","
+Attaching package: ‘zoo’
+
+"
+"2","The following objects are masked from ‘package:base’:
+
+    as.Date, as.Date.numeric
+
+"
+"0","library(car)"
+"2","
+Attaching package: ‘car’
+
+"
+"2","The following object is masked from ‘package:dplyr’:
+
+    recode
+
+"
+"2","The following object is masked from ‘package:purrr’:
+
+    some
+
+"
+"0","library(coefplot)"

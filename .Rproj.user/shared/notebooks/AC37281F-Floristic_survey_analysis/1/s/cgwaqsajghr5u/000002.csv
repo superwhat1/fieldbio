@@ -1,0 +1,2 @@
+"0","MyData$Richness<-rowSums(SpeciesComp!=0)"
+"0","MyData$Shannon<-diversity(SpeciesComp, index = ""shannon"", MARGIN = 1, base = exp(1))"

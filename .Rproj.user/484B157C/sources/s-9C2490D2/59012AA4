@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1528264809545.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "59012AA4",
+    "lastKnownWriteTime" : 1528528123,
+    "last_content_update" : 1528528123490,
+    "path" : "~/Documents/Field Genomics/R Practice/Floristic_survey_analysis.Rmd",
+    "project_path" : null,
+    "properties" : {
+        "chunk_output_type" : "inline",
+        "cursorPosition" : "205,0",
+        "scrollLine" : "199"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

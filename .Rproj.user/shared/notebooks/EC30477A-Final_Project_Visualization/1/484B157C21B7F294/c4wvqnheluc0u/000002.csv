@@ -1,0 +1,4 @@
+"0","FAM_mean = ddply(Eugene,~FAMFULL,summarise,LAT_mean=mean(LAT),Dam_mean=mean(Damage), SL_mean=mean(Stem.Length), SC_mean = mean(Stem.Count), VEGWT_mean=mean(VEGWT,na.rm = T), RWT_mean=mean(RWT, na.rm=T), PREV_mean=mean(PREV, na.rm = T))"
+"0","POP_mean = ddply(Eugene,~POP,summarise,LAT_mean=mean(LAT),Dam_mean=mean(Damage), SL_mean=mean(Stem.Length), SC_mean = mean(Stem.Count), VEGWT_mean=mean(VEGWT,na.rm = T), RWT_mean=mean(RWT, na.rm=T), PREV_mean=mean(PREV, na.rm = T))"
+"0","write.csv(POP_mean,'./Lythrum/POP_mean', row.names = F)"
+"0","Origin_mean = ddply(Eugene,~Origin,summarise,LAT_mean=mean(LAT),Dam_mean=mean(Damage), SL_mean=mean(Stem.Length), SC_mean = mean(Stem.Count), VEGWT_mean=mean(VEGWT,na.rm = T), RWT_mean=mean(RWT, na.rm=T), PREV_mean=mean(PREV, na.rm = T))"

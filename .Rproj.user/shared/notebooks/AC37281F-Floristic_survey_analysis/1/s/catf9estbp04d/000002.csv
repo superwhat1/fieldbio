@@ -1,0 +1,2 @@
+"0","M <- as.matrix(SpeciesComp)"
+"0","dist_M <- vegdist(M, method = ""bray"", binary = T)"

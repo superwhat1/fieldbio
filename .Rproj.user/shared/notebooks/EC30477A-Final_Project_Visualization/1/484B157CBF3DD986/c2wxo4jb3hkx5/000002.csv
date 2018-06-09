@@ -1,0 +1,6 @@
+"0","Muzz = read.csv('./Lythrum/Eugene_Data')"
+"0","Eugene = read.csv('./Lythrum/Eugene_Data')"
+"0","PL_match_0 = read.csv(""./Lythrum/PL_match_0"")"
+"0","PL_match_c = read.csv(""./Lythrum/PL_match_c"")"
+"0","PL_miss_0 = read.csv(""./Lythrum/PL_miss_0"")"
+"0","PL_miss_c = read.csv(""./Lythrum/PL_miss_c"")"

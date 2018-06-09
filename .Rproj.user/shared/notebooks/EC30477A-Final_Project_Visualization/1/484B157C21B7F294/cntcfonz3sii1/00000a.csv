@@ -1,0 +1,4 @@
+"0","LMM1<-lmer(Stem.Length~BL_ID*Origin+(1|FAMFULL), data=Eugene)
+"
+"2","fixed-effect model matrix is rank deficient so dropping 4782 columns / coefficients
+"

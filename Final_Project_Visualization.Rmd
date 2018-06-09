@@ -1,0 +1,238 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+### Load packages 
+```{r include=FALSE}
+library(ggplot2)
+library(car)
+library(lmtest)
+library(plyr)
+library(dplyr)
+
+```
+
+### Open Files
+```{r include=FALSE}
+Muzz = read.csv('./Lythrum/Eugene_Data')
+Eugene = read.csv('./Lythrum/Eugene_Data')
+PL_match_0 = read.csv("./Lythrum/PL_match_0")
+PL_match_c = read.csv("./Lythrum/PL_match_c")
+PL_miss_0 = read.csv("./Lythrum/PL_miss_0")
+PL_miss_c = read.csv("./Lythrum/PL_miss_c")
+```
+
+### Check to see if data is normal
+```{r}
+mod1 = lm(Damage~LAT+VEGWT+RWT+Stem.Length+Stem.Count+RWT, data=Eugene)
+car::qqp(Eugene$Damage, "norm")
+#plot(density(Eugene$Damage)) # does it fit a normal distribution?
+bptest(mod1) #check for homoskedastity
+summary(mod1) 
+#plot(mod1)
+mod1.mVEGWT<-update(mod1,.~. - VEGWT)
+anova(mod1,mod1.mVEGWT)
+
+mod1.mLAT<-update(mod1.mVEGWT,.~. - LAT)
+anova(mod1.mVEGWT,mod1.mLAT)
+
+mod1<-mod1.mLAT
+summary(mod1)
+```
+
+1. Stem.length is significantly correlated to Damage
+2. Stem.Count is significantly correlated to Damage 
+3. Previous years vegetative weight is significantly correlated to damage when looked at alone
+4. Previous years root weight is slightly significantly correlated to Damage
+5. No apparent correlation between LAT and Damage FOR NOW --- CORRELATION IS SHOWN LATER
+
+
+
+### Group the values
+```{r}
+diff = max(Eugene$LAT, na.rm = T)-min(Eugene$LAT, na.rm = T)
+cutoff = diff/3.0
+Min_LAT =min(Eugene$LAT, na.rm = T)
+
+# NA is evaluated as a value within the South range, so we remove those columns/ make them zeros
+Eugene = Eugene[Eugene$FAMFULL!='P137',]
+Eugene = Eugene[Eugene$FAMFULL!='P176',]
+
+#Make new column Origin, group by LAT and replace with 1_North, 2_Mid and 3_South
+Eugene$Origin = Eugene$LAT
+Eugene$Origin[Eugene$Origin >= Min_LAT & Eugene$Origin<= Min_LAT+cutoff ] = '3_South'
+Eugene$Origin[Eugene$Origin > Min_LAT+cutoff & Eugene$Origin <=Min_LAT+2*cutoff]= '2_Mid'
+Eugene$Origin[Eugene$Origin > Min_LAT+2*cutoff]= '1_North'
+
+```
+
+### Group by FAMFULL, POP and Origin. 
+###### Get means for groups 
+```{r}
+FAM_mean = ddply(Eugene,~FAMFULL,summarise,LAT_mean=mean(LAT),Dam_mean=mean(Damage), SL_mean=mean(Stem.Length), SC_mean = mean(Stem.Count), VEGWT_mean=mean(VEGWT,na.rm = T), RWT_mean=mean(RWT, na.rm=T), PREV_mean=mean(PREV, na.rm = T))
+
+POP_mean = ddply(Eugene,~POP,summarise,LAT_mean=mean(LAT),Dam_mean=mean(Damage), SL_mean=mean(Stem.Length), SC_mean = mean(Stem.Count), VEGWT_mean=mean(VEGWT,na.rm = T), RWT_mean=mean(RWT, na.rm=T), PREV_mean=mean(PREV, na.rm = T))
+write.csv(POP_mean,'./Lythrum/POP_mean.csv', row.names = F)
+
+Origin_mean = ddply(Eugene,~Origin,summarise,LAT_mean=mean(LAT),Dam_mean=mean(Damage), SL_mean=mean(Stem.Length), SC_mean = mean(Stem.Count), VEGWT_mean=mean(VEGWT,na.rm = T), RWT_mean=mean(RWT, na.rm=T), PREV_mean=mean(PREV, na.rm = T))
+```
+
+
+### Analysis of ungrouped data
+##### Damage VS...
+```{r include=FALSE}
+mod2 = lm(Damage~LAT*Stem.Length, data=Eugene)
+summary(mod2)
+
+mod3 = lm(log(Damage+1)~LAT*Stem.Length, data=Eugene)
+summary(mod3)
+
+mod4 = lm(Damage~LAT, data=PL_match_0)
+summary(mod4)
+```
+
+##### Plant growth VS...
+```{r}
+mod7 = lm(Stem.Length~LAT, data=Eugene)
+summary(mod7)
+
+#TEST TO SEE IF PREVIOUS YEAR AFFECTED THIS YEAR GROWTH
+mod_growthl = lm(Stem.Length~RWT*VEGWT, data=PL_match_0)
+summary(mod_growthl)
+mod_growthc = lm(Stem.Count~RWT*VEGWT, data=PL_match_0)
+summary(mod_growthc)
+
+# The previous years plant size/ growth is significantly correlated to this years stem lentgh and even more to stem count
+```
+
+### Grouped mean analysis
+#### Damage VS...
+```{r}
+mod5 = lm(Dam_mean~VEGWT_mean, data=POP_mean)
+summary(mod5) 
+qplot(x=VEGWT_mean, y=Dam_mean, data=POP_mean)
+
+mod6 = lm(Dam_mean~SL_mean, data=POP_mean)
+summary(mod6)
+qplot(x=SL_mean, y=Dam_mean, data=POP_mean)
+
+mod8 = lm(Dam_mean~VEGWT_mean*RWT_mean, data=POP_mean)
+summary(mod8)
+
+mod9 = lm(Dam_mean~LAT_mean, data=POP_mean)
+summary(mod9)
+qplot(x=LAT_mean, y=Dam_mean, data=POP_mean, colour=POP) +theme_classic()
+# Has a peak LAT 
+
+
+
+```
+#### There is significant correlation between Damage and Stem Length when Grouped by Population
+#### There is slightly significant between Damage and Vegetative weight from previous year when Grouped by Population
+
+
+### PLOT CITY
+
+Plot of Latitude mean against Damage mean for POP_mean
+
+```{r}
+qplot(x=SL_mean, y=Dam_mean, data=POP_mean, colour=POP) +theme_classic()
+
+```
+
+####Nice graph for Stem Length and Damage correlation
+
+
+```{r}
+qplot(x=VEGWT_mean, y=Dam_mean, data=POP_mean, colour=POP) +theme_classic()
+```
+
+Plot for Vegetative weight against Damage
+
+```{r include=FALSE}
+qplot(x=LAT, y=Stem.Length, data=PL_match_0) +theme_classic()
+#Plot of Stem Length against LAT for PL_match
+```
+
+```{r include=FALSE}
+qplot(x=LAT, y=Stem.Length, data=Eugene, colour=POP) +theme_classic()
+#Plot of Stem Length against LAT for Eugene
+
+```
+
+
+```{r}
+qplot(x=LAT_mean, y=SL_mean, data=POP_mean, colour=POP) +theme_classic()
+```
+
+Plot of Stem Length against LAT for POP_mean
+
+
+```{r}
+qplot(x=LAT_mean, y=Dam_mean, data=Origin_mean, colour = Origin, shape= Origin) +theme_classic()
+
+
+```
+
+Small but significant difference in Damage associated with the Mid Origin of the plants, I will look into the areas given by the Latitude groupings. I want to see if this latitude is similar to that of the natural/original habitat of the Lythrum, before it was introduced to north america.
+
+
+##Mixed effects analysis
+```{r Mixed effects}
+library(lme4)
+LMM1<-lmer(Stem.Length~LAT*Origin+(1|FAMFULL), data=Eugene)
+summary(LMM1)
+# Compare to a simple model
+LMM0<-lmer(Stem.Length~1+(1|FAMFULL),data=Eugene)
+summary(LMM0)
+# Different among-family variances for each Origin
+LMM2<-lmer(Stem.Length~Site*Origin+(Origin|FAMFULL),data=LyDat)
+summary(LMM2)
+
+# Do origins differ in among-family variance?
+# Use a likelihood ratio test
+anova(LMM2,LMM1)
+
+```
+
+
+## NMDS
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

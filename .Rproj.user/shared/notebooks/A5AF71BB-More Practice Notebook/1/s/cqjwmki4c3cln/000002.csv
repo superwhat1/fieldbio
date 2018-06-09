@@ -1,0 +1,5 @@
+"0","```r
+FData = read.csv(\"./Data/FallopiaData.csv\")
+head(FData)
+qplot(x=Total,data=FData)
+```"

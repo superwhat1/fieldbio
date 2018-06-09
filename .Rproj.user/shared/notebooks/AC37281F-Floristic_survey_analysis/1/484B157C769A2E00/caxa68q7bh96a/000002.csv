@@ -1,0 +1,3 @@
+"0","ggplot(MyData, aes(y=Richness,x=Location))+"
+"0","  geom_boxplot(aes(color=Location))+"
+"0","  labs(y=""Richness"")"

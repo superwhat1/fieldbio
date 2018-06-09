@@ -1,0 +1,302 @@
+[
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column Damage",
+    "engineConfig": {
+      "mode": "row-based",
+      "facets": [
+        {
+          "mode": "text",
+          "invert": false,
+          "caseSensitive": false,
+          "query": "d",
+          "name": "Damage",
+          "type": "text",
+          "columnName": "Damage"
+        }
+      ]
+    },
+    "columnName": "Damage",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Dead"
+        ],
+        "to": "NA"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column Stem Count",
+    "engineConfig": {
+      "mode": "row-based",
+      "facets": [
+        {
+          "mode": "text",
+          "invert": false,
+          "caseSensitive": false,
+          "query": "d",
+          "name": "Stem Count",
+          "type": "text",
+          "columnName": "Stem Count"
+        }
+      ]
+    },
+    "columnName": "Stem Count",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Dead"
+        ],
+        "to": "NA"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column Stem Length",
+    "engineConfig": {
+      "mode": "row-based",
+      "facets": [
+        {
+          "mode": "text",
+          "invert": false,
+          "caseSensitive": false,
+          "query": "d",
+          "name": "Stem Length",
+          "type": "text",
+          "columnName": "Stem Length"
+        }
+      ]
+    },
+    "columnName": "Stem Length",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Dead"
+        ],
+        "to": "NA"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column Stem Length",
+    "engineConfig": {
+      "mode": "row-based",
+      "facets": [
+        {
+          "mode": "text",
+          "invert": false,
+          "caseSensitive": false,
+          "query": "d",
+          "name": "Stem Length",
+          "type": "text",
+          "columnName": "Stem Length"
+        }
+      ]
+    },
+    "columnName": "Stem Length",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "dead"
+        ],
+        "to": "NA"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column Stem Length",
+    "engineConfig": {
+      "mode": "row-based",
+      "facets": [
+        {
+          "mode": "text",
+          "invert": false,
+          "caseSensitive": false,
+          "query": "d",
+          "name": "Stem Length",
+          "type": "text",
+          "columnName": "Stem Length"
+        }
+      ]
+    },
+    "columnName": "Stem Length",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "dead "
+        ],
+        "to": "NA"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column Stem Length",
+    "engineConfig": {
+      "mode": "row-based",
+      "facets": [
+        {
+          "mode": "text",
+          "invert": false,
+          "caseSensitive": false,
+          "query": "m",
+          "name": "Stem Length",
+          "type": "text",
+          "columnName": "Stem Length"
+        }
+      ]
+    },
+    "columnName": "Stem Length",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Missing"
+        ],
+        "to": "NA"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column Stem Length",
+    "engineConfig": {
+      "mode": "row-based",
+      "facets": [
+        {
+          "mode": "text",
+          "invert": false,
+          "caseSensitive": false,
+          "query": "m",
+          "name": "Stem Length",
+          "type": "text",
+          "columnName": "Stem Length"
+        }
+      ]
+    },
+    "columnName": "Stem Length",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "missing "
+        ],
+        "to": "NA"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column Stem Length",
+    "engineConfig": {
+      "mode": "row-based",
+      "facets": [
+        {
+          "mode": "text",
+          "invert": false,
+          "caseSensitive": false,
+          "query": "m",
+          "name": "Stem Length",
+          "type": "text",
+          "columnName": "Stem Length"
+        }
+      ]
+    },
+    "columnName": "Stem Length",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "too small "
+        ],
+        "to": "NA"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column Stem Length",
+    "engineConfig": {
+      "mode": "row-based",
+      "facets": [
+        {
+          "mode": "text",
+          "invert": false,
+          "caseSensitive": false,
+          "query": "o",
+          "name": "Stem Length",
+          "type": "text",
+          "columnName": "Stem Length"
+        }
+      ]
+    },
+    "columnName": "Stem Length",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "No Plant "
+        ],
+        "to": "NA"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column Stem Length",
+    "engineConfig": {
+      "mode": "row-based",
+      "facets": [
+        {
+          "mode": "text",
+          "invert": false,
+          "caseSensitive": false,
+          "query": "o",
+          "name": "Stem Length",
+          "type": "text",
+          "columnName": "Stem Length"
+        }
+      ]
+    },
+    "columnName": "Stem Length",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "no hole?"
+        ],
+        "to": "NA"
+      }
+    ]
+  }
+]

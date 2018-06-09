@@ -1,0 +1,4 @@
+"0","MyData<-FloristicSurvey[,1:10]"
+"0","MyData$Population<-as.factor(MyData$Population)"
+"0","SpeciesComp<-FloristicSurvey[,11:length(FloristicSurvey)]"
+"0","rownames(SpeciesComp)<-MyData[,1] # keep the quadrat names as part of your floristic survey dataframe."

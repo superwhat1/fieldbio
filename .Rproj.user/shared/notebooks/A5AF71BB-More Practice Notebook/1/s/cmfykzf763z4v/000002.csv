@@ -1,0 +1,4 @@
+"0","```r
+qplot(x=log(10^Total),data=FData)
+
+```"

@@ -1,0 +1,2 @@
+"0","mod1 = lm(Damage~LAT+VEGWT+RWT+Stem.Length+Stem.Count+RWT, data=Eugene)"
+"0","car::qqp(Eugene$Damage, ""norm"")"

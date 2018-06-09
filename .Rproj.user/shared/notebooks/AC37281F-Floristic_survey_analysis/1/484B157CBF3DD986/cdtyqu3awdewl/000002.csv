@@ -1,0 +1,4 @@
+"0","mod1<-lm(Richness~ Population + Location + Rosettes + Bolting+ Budding + Bud_Flw, data = MyData)
+"
+"2","Error in is.data.frame(data) : object 'MyData' not found
+"
