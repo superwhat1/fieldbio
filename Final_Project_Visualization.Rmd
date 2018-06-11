@@ -1,10 +1,8 @@
 ---
-title: "R Notebook"
 output:
   html_document:
     df_print: paged
 ---
-### Load packages 
 ```{r include=FALSE}
 library(ggplot2)
 library(car)
@@ -14,7 +12,6 @@ library(dplyr)
 
 ```
 
-### Open Files
 ```{r include=FALSE}
 Muzz = read.csv('./Lythrum/Eugene_Data')
 Eugene = read.csv('./Lythrum/Eugene_Data')
@@ -24,7 +21,6 @@ PL_miss_0 = read.csv("./Lythrum/PL_miss_0")
 PL_miss_c = read.csv("./Lythrum/PL_miss_c")
 ```
 
-### Check to see if data is normal
 ```{r include=F}
 mod1 = lm(Damage~LAT+VEGWT+RWT+Stem.Length+Stem.Count, data=Eugene)
 car::qqp(Eugene$Damage, "norm")
@@ -42,13 +38,7 @@ mod1<-mod1.mLAT
 summary(mod1)
 ```
 
-1. Stem.length is significantly correlated to Damage
-2. Stem.Count is significantly correlated to Damage 
-3. Previous years vegetative weight is significantly correlated to damage when looked at alone
-4. Previous years root weight is slightly significantly correlated to Damage
-5. No apparent correlation between LAT and Damage FOR NOW --- CORRELATION IS SHOWN LATER
 
-### Group the values
 ```{r include=F}
 diff = max(Eugene$LAT, na.rm = T)-min(Eugene$LAT, na.rm = T)
 cutoff = diff/3.0
@@ -68,8 +58,6 @@ Eugene$Origin[Eugene$Origin >= Min_LAT+2*cutoff]= '1_North'
 
 ```
 
-### Group by FAMFULL, POP and Origin. 
-###### Get means for groups 
 ```{r include=F}
 FAM_mean = ddply(Eugene,~FAMFULL,summarise,LAT_mean=mean(LAT),Dam_mean=mean(Damage), SL_mean=mean(Stem.Length), SC_mean = mean(Stem.Count), VEGWT_mean=mean(VEGWT,na.rm = T), RWT_mean=mean(RWT, na.rm=T), PREV_mean=mean(PREV, na.rm = T))
 
@@ -87,13 +75,10 @@ Origin_mean = ddply(Eugene,~Origin,summarise,LAT_mean=mean(LAT),Dam_mean=mean(Da
 ```
 
 
-### Analysis of ungrouped data
-##### Damage VS...
 ```{r include=FALSE}
 #NONE
 ```
 
-##### Plant growth VS...
 
 ```{r include=F}
 #TEST TO SEE IF PREVIOUS YEAR AFFECTED THIS YEAR GROWTH
@@ -102,12 +87,12 @@ summary(mod_growthl)
 
 mod_growthc = lm(Stem.Count~RWT*VEGWT, data=Eugene)
 summary(mod_growthc)
+#The previous years plant size/ growth is significantly correlated to this years stem lentgh(R^2adj=0.1709, R^2=0.1719,p=< 2.2e-16) 
+#and even more to stem count(R^2adj=0.1291, R^2=0.1302, p=< 2.2e-16)
 ```
-######TEST TO SEE IF PREVIOUS YEAR AFFECTED THIS YEAR GROWTH
-The previous years plant size/ growth is significantly correlated to this years stem lentgh(R^2adj=0.1709, R^2=0.1719,p=< 2.2e-16) 
-and even more to stem count(R^2adj=0.1291, R^2=0.1302, p=< 2.2e-16)
 
-```{r}
+
+```{r include=F}
 Copy = Eugene
 Copy = Copy[!is.na(Copy$VEGWT),]
 
@@ -117,50 +102,47 @@ summary(mod_growthp)
 qplot(x=PREV, y=Stem.Length, data=Copy, main = "Supplemental Figure 1")+
   geom_line(mapping=aes(x=PREV,y=predict(mod_growthp)),data=Copy,colour='green') + 
   theme_classic()
+#previous years total plant weight plotted against current years plant stem length, data used for plotting is from Eugene.
+#(R^2adj=0.1948, R^2=0.1951, p=< 2.2e-16). 
+#positive significant correlation between the two 
 ```
-previous years total plant weight plotted against current years plant stem length, data used for plotting is from Eugene.
-(R^2adj=0.1948, R^2=0.1951, p=< 2.2e-16). 
-positive significant correlation between the two 
 
-### Grouped mean analysis
-#### Damage VS...
+
 ```{r include=F}
 mod5 = lm(Dam_mean~VEGWT_mean, data=POP_mean)
 summary(mod5) 
 ```
-```{r}
+```{r include=F}
 qplot(x=VEGWT_mean, y=Dam_mean, data=POP_mean)+
   geom_line(mapping=aes(x=VEGWT_mean,y=predict(mod5)),data=POP_mean,colour='green') +
   theme_classic()
+#Previous years mean vegetative weight plotted against the mean damage of populations (R^2adj=0.1163, R^2=0.1629, P=0.07765)
+#positive correlation
 ```
-Previous years mean vegetative weight plotted against the mean damage of populations (R^2adj=0.1163, R^2=0.1629, P=0.07765)
-positive correlation
+
 
 ```{r include=F}
 mod6 = lm(Dam_mean~SL_mean, data=POP_mean)
 summary(mod6)
-```
-```{r}
+
 qplot(x=SL_mean, y=Dam_mean, data=POP_mean, colour=POP) +theme_classic() +
   geom_line(mapping=aes(x=SL_mean,y=predict(mod6)),data=POP_mean,colour='green') +
   theme_classic()
 ```
 
-Mean stem length of 2018 plotted against mean damage of populations (R^2adj=0.6004, R^2=0.6215, P=3.65e-05)
-positive correlation
 
 
 ```{r include=F}
 mod7 = lm(Dam_mean~poly(RWT_mean,2), data=POP_mean)
 summary(mod7)
-```
-```{r}
+
 qplot(x=RWT_mean, y=Dam_mean, data=POP_mean, colour=POP) +theme_classic() +
   geom_smooth(mapping=aes(x=RWT_mean,y=predict(mod7)),data=POP_mean,colour='green') +
   theme_classic()
+#Previous years mean reproductive weight plotted against mean damage(R^2adj=0.05551, R^2=0.1549, P=0.2391)
+
 ```
 
-Previous years mean reproductive weight plotted against mean damage(R^2adj=0.05551, R^2=0.1549, P=0.2391)
 
 ```{r include=F}
 POP_copy=POP_mean
@@ -169,62 +151,42 @@ POP_copy=POP_copy[POP_copy$LAT_mean!=40.06813,]
 
 mod8 = lm(Dam_mean~poly(LAT_mean,2,raw=T), data=POP_copy)
 summary(mod8)
-```
-```{r Figure 1}
+
 qplot(x=LAT_mean, y=Dam_mean, data=POP_copy, colour=POP, main="Figure1") +theme_classic() + 
   geom_smooth(mapping=aes(x=LAT_mean, y=predict(mod8)),data=POP_copy,colour='red') +
   theme_classic()
 ```
 
-Mean latitude plotted against mean damage of populations, data used to plot is from POP_mean. The values for the point with a latitude of 48.10384 and 40.06813 were removed due to being an outlier. (R^2adj=0.3507, R^2=0.4271, P=0.01533)
-polynomial correlation of the second degree and significant 
 
 ```{r include=F}
 O_mod = lm(Dam_mean~poly(LAT_mean,2), data=Origin_mean)
 summary(O_mod)
-```
-```{r}
+
 qplot(x=LAT_mean, y=Dam_mean, data=Origin_mean, colour = Origin, shape= Origin, size=I(5) ) +theme_classic()
 ```
 
-Small but significant difference in Damage associated with the Mid Origin of the plants, I will look into the areas given by the Latitude groupings. I want to see if this latitude is similar to that of the natural/original habitat of the Lythrum, before it was introduced to north america.
-Has a peak LAT 
-
-#### Plant growth VS...
 ```{r include=F}
 mod9 = lm(SL_mean~poly(LAT_mean,2), data=POP_copy)
 summary(mod9)
-```
-```{r Figure 2}
+
 qplot( x=LAT_mean, y=SL_mean,data=POP_copy, main="Figure 2") +geom_smooth(mapping=aes(x=LAT_mean,y=predict(mod9)) ) +
   theme_classic()
 ```
 
-mean latitude plotted against mean stem length of populations, data used for plotting are from POP_mean. The values for the point with a latitude of 48.10384 was removed due to being an outlier. (R^2adj=0.3589, R^2=0.4301, P=0.01113)
-with the outlier the p value of the model is p=0.8026
-significant polynomial ditribution of data
-
 ```{r include=F}
 mod10 = lm(PREV_mean~poly(LAT_mean,2), data=POP_mean)
 summary(mod10)
-```
-```{r}
 qplot( x=LAT_mean, y=PREV_mean,data=POP_mean) +geom_smooth(mapping=aes(x=LAT_mean,y=predict(mod10)) ) +
   theme_classic()
 ```
-mean latitude plotted against mean stem length of populations, data used for plotting are from POP_mean. (R^2adj=0.2358, R^2=0.3162, P=0.03952)
-significant polynomial ditribution of data
-```{r Figure 3}
+
+```{r include=F}
 mod11 = lm(SL_mean~PREV_mean,data=POP_mean)
 summary(mod11)
 qplot( y=SL_mean, x=PREV_mean,data=POP_mean, colour=POP, main="Figure 3") +geom_line(mapping=aes(x=PREV_mean,y=predict(mod11)), colour="green" ) +
   theme_classic()
 ```
 
-mean of last years plant weight(vegetative height and reproductive weight combined) plotted against current years stem length. Data used for plotting is from POP_mean/ Table 1. (R^2adj=0.3589, R^2=0.4301, P=0.01113)
-There is a positive correlation between the two.
-
-##Mixed effects analysis
 ```{r Mixed effects, include=F}
 library(lme4)
 LMM1<-lmer(Stem.Length~LAT*Origin+(1|FAMFULL), data=Eugene)
@@ -242,8 +204,6 @@ anova(LMM2,LMM1)
 
 ```
 
-## RDA
-transform and scale data
 ```{r include=F}
 library(tidyverse)
 library(vegan)
@@ -254,43 +214,6 @@ Copy = Copy[!is.na(Copy$VEGWT),]
 dmg <-Copy[,c(6:7)] 
 dmg.hell <- decostand(dmg, "hell")
 ```
-
-```{r include=F}
-var <-Copy[,c(13,17,19:20)] # Isolate my variables to make this whole code easier to read
-formulaRDA<- rda(dmg.hell ~ POP+VEGWT+RWT+LAT, data=var, scale=T) # notice my predictive variable are being scaled too.
-
-head(summary(formulaRDA))
-anova(formulaRDA, permutations=1000) # Is the RDA meaningful?
-anova.cca(formulaRDA, by="margin", permutations=1000) # Are any predictor variables meaningful?
-```
-
-```{r include=F}
-#Check to see if variables are meaningful
-varpart(dmg.hell, ~POP, ~LAT, ~ RWT + VEGWT, data=var)
-```
-
-
-```{r visualize RDA, include=F}
-smry <- summary(formulaRDA)
-df1  <- data.frame(smry$sites[,1:2])       # RDA1 and RDA2 (for each quadrate)
-df2  <- data.frame(smry$biplot[,1:2])     # loadings for RDA1 and RDA2 (for each variable)
-rda.plot <- ggplot(df1, aes(x=RDA1, y=RDA2)) +
-  geom_point(aes(alpha=0.3)) +
-  geom_hline(yintercept=0, linetype="dotted") +
-  geom_vline(xintercept=0, linetype="dotted")  
-
-
-(formulaRDA.PLOT<-rda.plot +
-  geom_segment(data=df2, aes(x=0, xend=RDA1, y=0, yend=RDA2), 
-               color="red", arrow=arrow(length=unit(0.01,"npc"))) +
-  geom_text(data=df2, 
-            aes(x=RDA1,y=RDA2,label=rownames(df2),
-                hjust=0.5*(1-sign(RDA1)),vjust=0.5*(1-sign(RDA2))), 
-            color="red", size=4)+ theme(legend.position="none"))
-```
-
-
-## NMDS
 
 ```{r Transform data into matrix, include=F}
 var2 = POP_mean[,c(3:5)]
@@ -309,6 +232,129 @@ NMDS.data$NMDS1<-meta.nmds$points[ ,1]
 NMDS.data$NMDS2<-meta.nmds$points[ ,2] 
 ```
 
+```{r include=F}
+ggplot(data = NMDS.data, aes(y = NMDS2, x = NMDS1))+ 
+    geom_point( aes(colour = NMDS.data$POP,shape = NMDS.data$Origin), size = 2) +
+    geom_hline(yintercept=0, linetype="dotted") +
+    geom_vline(xintercept=0, linetype="dotted") +
+    ggtitle("Figure 3")+
+      theme_classic()
+  
+```
+ 
+
+```{r include=F}
+heigth_damage= ddply(Eugene,~Damage,summarise,SL_mean=mean(Stem.Length))
+```
+
+###Predation and growth of Lythrum salicaria along a latitudinal gradient as an invasive species in North America.
+
+###By : Shannon Mawhinney & David Foubert 
+
+
+###June 10th, 2018 
+
+**Abstract **
+
+Lythrum salicaria is an invasive wetland plant in north america that has evolved localized phenotypic differences, the plant is preyed upon by several types of beetles. Common garden studies are used to examine the difference in resistance and tolerance to herbivory in the different climatic plants.  Previous common garden experiments have show the phenotypic differences of L.salicaria along latitudinal gradients, we are testing the hypothesis that latitudinal difference in L. salicaria can also be attributed to variation in herbivory. Using a previously arranged common garden we measured height, stem count and whether damage was present or absent. This study found that the mid latitude L.salicaria species in the mid latitude garden had the highest rates of herbivory and were positively correlated with height. This is thought to be because of a home team advantage that Galerucella calmariensis have evolved with the plants of this area evolving alongside the L.salicaria that they feed on. 
+
+**Introduction **
+    Invasive specie have become an increasing area of interest in science over the last two decades, as climate change is now evident in nature around us people want to know how that will change ecosystems and what that means for native specie, especially as new species are introduced. It is being seen across the world that as temperatures rise many species, from plants to animals, are expanding their range north or south from the equator, one of these is Lythrum salicaria (purple loosestrife). A plant native to europe, asia and western africa, that is found in low lying marshy areas or along lake shores and river banks (Grey-Wilson, 1989), it was introduced to north america in the 1800s and has evolved local adaptations  at varying latitudes throughout north america (colautti & barrett, 2013). The effects of this invasion are not entirely understood at a local or national scale, in order to better understand the local adaption of invasive species common garden experiments can be used at latitudinal or altitudinal clines to observe native and non-native triat differences (colautti & barrett, 2013). 
+
+Local adaptations are generally beneficial when in the home range for the adaptation but can have fitness trade-offs when moved to another populations latitude, considering these adaptations and their impacts on Lythrum salicaria, we are investigating whether latitudinal adaptations and plant height are positively correlated to higher predation by Galerucella calmariensis. The phenotype of the plants and their flower morphology has been known to affect the prevalence of herbivory (Feeny, 1970) but also affect other plant - environment interactions. With respect to the Tropical Defense Hypothesis(Rasmann & Agrawal, 2011), in which plants closer to the equator undergo higher predation and therefore have higher resistance to damage, this is likely relative to the number of predators that are available in the area, longer warm seasons allow for larger and more abundant predators. With this in mind we expect to see the most pedation on the mid latitude plants as this is the range the experiment is occuring in and the herbivores are most adapted to the plants of their region. 
+
+Here, we are examining the differences in herbivory in a latitudinal variety of plants from north america in a single common garden, north of Kingston, Ontario. Using the height, stem counts and presence or absence of herbivory damage of the plants to examine the differences. We then related this information back to the plants original location and examined the variation in herbivory damage. Specifically we examined whether latitude origin affected the amount of herbivory damage and whether size played a role in herbivory damage. 
+
+**Materials and Methods**
+
+*Specimen collection*
+
+Lythrum salicaria plants were set up as an experiment on the introduction of a biocontrol by Eugene in 2017. The plants were grown and harvested from a common garden at Queen’s University Biological Station (QUBS) in 2017. These plants were grown from seed in a greenhouse in May and June 2017, with up to 12 replicates from each maternal seed family. Families were either sourced from an experiment on Bracken Tract at QUBS where natural herbivory was manipulated during the summer of 2016, or from a series of populations along a geographic transect through Ontario, New York State, Pennsylvania, and Virginia.(Eugene et al, 2017)
+We performed measurements on Lythrum salicaria plants in the common garden the following year, on May 20th 2018.
+
+The plants are grouped in transects by the experiment they were sourced from, either the natural herbivory manipulation or the latitudinal gradient study, identified as M or E respectively.
+The plants are randomly distributed between all the corresponding blocks, as to reduce the random effect of the family and location of collection. 
+The plants that were part of the natural herbivory manipulation experiment, conducted by Muzz(Muzz et al, 2016), were sprayed several times in the spring of 2016 with DeltaGard SC insecticide by Bayer (active ingredient: deltamethrin) to reduce herbivory establishment. 
+
+Beetles of the Galerucella family that originate from the native habitat of the Lythrum salicaria were introduced to study them as a biocontrol. The beatles specialize in using as their unique food source were introduced as a biocontrol. The beatles spend their entire life cycle on the plants, consuming the leaves as adults and the apical meristem as larvae. 
+
+*Computational manipulation*
+
+The raw data that we collected from the common garden in 2018 was entered in separate csv files and merged using Openrefine version 2.8, saved as PL_complete.csv. The data was then cleaned to fit the values to a uniform style. The manipulations by which the data was transformed are available as PL_refining.JSON.
+All other and following analysis and manipulation was done with R in Rstudio version 1.1.423
+Data was grouped by Population and Origin, and the means calculated for associated variables using ddply() function from dplyr package version 0.7.4
+
+*Statistical analysis*
+
+A non-metric multidimensional scaling (NMDS) was performed on the data grouped as populations using the metaMDS() function from vegan version 2.5-2
+Linear models were fit to our data using the lm() function from the stats package version 3.4.3
+Anovas were performed to test the accuracy of the linear models being fitted to our data and to establish how significant the variables are to the models. Also used to test significance of RDA and its variables. Anovas were performed using the anova() function from the stats package version 3.4.3.
+The plotting of data was accomplished using qplot() function from the ggplot2 package version 2.2.1.
+
+Data and supplemental material:
+Data and code used for analysis are publicly available online at https://github.com/superwhat1/fieldbio.git.
+Data manipulation in R of the data that was output of OpenRefine is available in the Project_Data.R file.
+All visualizations, including those presented here in and supplemental tables and figures are available in the Final_Project_Visualization.Rmd file. 
+
+**Results **
+
+Our analysis of the data, mostly focused on the plants that were part of the Eugene experiment, showed that there was significant (chi-squared, p<0.05) linear correlations between the following variables:
+
+1. Stem.length is significantly positively correlated to Damage
+2. Stem.Count is significantly positively correlated to Damage
+3. Previous years vegetative weight is significantly correlated to damage modeled alone
+4. Previous years root weight is slightly significantly correlated to Damage
+
+Data was grouped as populations to be able to test relations to damage. The grouped data provided mean damage values that were not 0 or 1, facilitating/making possible the fitting of data and plotting(Table 1).
+
+```{r}
+POP_mean
+```
+
+**Table1. Latitudinal gradient experiment data averaged per population**
+
+The data for the experiment on latitudinal gradients by Eugene was pulled from the main dataset and the grouped by population of collection. The variables were then grouped and averaged by population. 
+
+*Damage along latitudinal gradient*
+
+```{r Figure 1}
+qplot(x=LAT_mean, y=Dam_mean, data=POP_copy, colour=POP, main="Figure1") +theme_classic() + 
+  geom_smooth(mapping=aes(x=LAT_mean, y=predict(mod8)),data=POP_copy,colour='red') +
+  theme_classic()
+```
+
+**Figure 1. Predation damage of Lythrum salicaria leaves plotted against the latitude of collection.**
+
+Mean latitude plotted against mean damage of populations, data used to plot is from POP_mean. The values for the point with a latitude of 48.10384 was removed due to being an outlier. (R^2adj=0.2292, R^2=0.3148, P=0.04856) polynomial correlation of the second degree and significant. Two values were omitted from the plot and the model as being outliers. There may have been errors in measurements or data input, as the data was collected by us in its entirety. There is polynomial distribution of the data with apex at the mid latitudes. 
+
+*Plant growth along latitudinal gradient*
+
+```{r Figure 2}
+qplot( x=LAT_mean, y=SL_mean,data=POP_copy, main="Figure 2") +geom_smooth(mapping=aes(x=LAT_mean,y=predict(mod9)) ) +
+  theme_classic()
+```
+
+**Figure 2. Length of Lythrum salicaria stem plotted against latitude of collection.**
+
+Mean latitude plotted against mean stem length of populations, data used for plotting are from POP_mean. The values for the point with a latitude of 48.10384 was removed due to being an outlier. (R^2adj=0.3589, R^2=0.4301, P=0.01113)
+with the outlier the p value of the model is p=0.8026. There is significant polynomial distribution of data.
+
+
+*Plant size and damage*
+
+```{r Figure 3}
+mod11 = lm(SL_mean~PREV_mean,data=POP_mean)
+summary(mod11)
+qplot( y=SL_mean, x=PREV_mean,data=POP_mean, colour=POP, main="Figure 3") +geom_line(mapping=aes(x=PREV_mean,y=predict(mod11)), colour="green" ) +
+  theme_classic()
+```
+
+**Figure 3. Damage of L. salicaria plotted against the stem length.**
+
+Mean stem length of 2018 plotted against mean damage of populations (R^2adj=0.6004, R^2=0.6215, P=3.65e-05)
+The predator damage is positively correlated to the previous years total plant weight(reproductive and vegetative weight)
+
+
 ```{r Visualize NMDS}
 ggplot(data = NMDS.data, aes(y = NMDS2, x = NMDS1))+ 
     geom_point( aes(colour = NMDS.data$POP,shape = NMDS.data$Origin), size = 2) +
@@ -319,35 +365,48 @@ ggplot(data = NMDS.data, aes(y = NMDS2, x = NMDS1))+
   
 ```
 
-NMDS ordination diagram (axes 1 and 2) for the 20 L. salicaria populations. The damage, stem length and stem count means were factors that had significant effects on the ordination configuration. 
+**Figure 4. NMDS of Lythrum salicaria populations.**
 
-```{r}
-heigth_damage= ddply(Eugene,~Damage,summarise,SL_mean=mean(Stem.Length))
-```
+NMDS ordination diagram (axes 1 and 2) for the 20 L. salicaria populations. The damage, stem length and stem count means were factors that had significant effects on the ordination configuration.
 
 
+**Discussion**
+
+*Damage along latitudinal gradient*
+
+    We examined the  phenotypic changes that come with latitudinal localized evolution in Lythrum salicaria and how that affects the predation by Galerucella calmariensis. We found that the mid latitude plants in the mid latitude common garden we examined had the home team advantage when it came to plant size and vegetative weight but that was accompanied by higher herbivory as we assume the beetles in this area are adapted to the plants from this ares. As we did not examine data from other common gardens where the home plants would have had their own advantages we can not say that size is always a contributing factor to increased herbivory, but other research has stated that herbivory tends to decrease from South to North (Lehndal & Agren, 2015), so we assume this trend would be followed in North America. The intensity of herbivory along this gradient may also attribute to divergent selection in L.salicaria driving the changes seen in phenotype, resistance and tolerance to herbivory (Lehndal & Agren, 2015). The finding in this data is correlated with previous research in herbivor selection, saying that herbivores tend to choose southern plants over northern plants and this may be linked to plant tolerance and resistance of the actual plants as well as growing season of the individuals and the growth seasons of the herbivores latitudinally (Lehndal & Agren, 2015).
 
 
+*Plant growth along latitudinal gradient*
 
+    Using common garden experiments to examine the life history traits of L. salicaria along a latitudinal gradient can be beneficial to examine the changes within a population and its neighboring latitude. The changes in things such as growth and flowering time may benefit the local population but how does this contribute to the spread or containment of this invasive species. Some of the localized changes are thing such as the northern latitude plants flower earlier than their southern counterparts this has trade offs when the plant is moved to a more southern habitat where this trait now reduces its fitness significantly (Colautti & Barrett 2013). The rapid evolution that these plants undergo in order to propagate as they spread through their invasive habitats is what makes them so successful, but once a population is maintained in an area they develop localized benefits. In common garden experiments this is seen as the home team advantage, where the plant from that latitude is better adapted to its surrounding and had better fitness than the other climactic plants(Colautti & Barrett 2013). In regards to growth this can come across in a number of ways depending on the local adaptation the plant has undergone. In the north this comes across as a plant that invests in flowering much earlier than its southern counterpart. As we only examined one set of common garden data from one latitude the complete understanding of latitudinal benefits can only be observed in the mid latitude plants, in this case these plants were the tallest and had the highest average vegetative weight but were also the highest observed herbivores plants. 
 
+*Plant size and damage*
 
+    The size of the plants, as indicated by the length of the stem, is highly correlated to the damage that has suffered(see Figure 3). It might simply be due to the fact that the larger the plant the more surface area there is to be damaged. But the data was collected as presence/absence and not as a amount of damage. There is a difference in the average height of the plants with and without damage. This may indicate that the beetles prefer plants that are more mature.
+There is a possibility that the L. salicaria plants produce compounds that are a deterrent or even harmful to the beetles in the early stage of growth. These compounds might only be produced in the early stages, to protect itself against damage that could be fatal and impede the plants growth severely. The genes responsible for the production of these compounds may be turned off in place of others, as is the case for other genes(Yihan Wu & Robert I. Colautti, 2018). After the plants have reached a certain size the compounds are no longer needed to protect it against critical damage, as it is unlikely the beatles will be able to inflict enough damage to overcome the speed of growth. It would be interesting to monitor the growth over time in an entire season to see if this is the case. 
+The beatles and the Lythrum are most likely engaged in an arms race. Each species attempting to get an edge on the other, plants to protect themselves against the beetles and the later to counter/resist the compounds produced by the plants. The plants might need to trade off producing large amounts of deterring compounds for the necessity to grow and produce seeds to stay competitive against other plants.
 
+*Biocontrol over time*
 
+    As Lythrum salicaria is an invasive plant that is on management lists nationally it is important to understand the impacts of herbivory as a control agent. This study did not go into depth on the percent damage of plants of varying latitudes and if this actually affected the plants fitness over time, this is an interesting area of study for the future. Some preliminary research has been conducted in other wild or test  L. salicaria populations. They released G. calmariensis and G. pusilla  36 sites throughout New York where they then measured the stand area of the plants , plant density and plant height. They measured at the initial release in 1994 and than again in 2004(Grevstad,2006). The study found that plant height had been significantly impacted but the stand area of the population remained the same (Grevstad,2006). They examined the presence or absence of the beetles at the sites and monitored population size to see if that was a factor in controlling the populations but did not find any significance(Grevstad,2006).  This would be an interesting area to study further as biocontrols can be effective if the right settings are provided. The differences in herbivory across North American latitudes and how they are causing genetic changes in these plants are areas of study that could be paired with biocontrol studies to try and manage this invasive species. 
 
+**Conclusion**
 
+In conclusion the study of this mid latitude garden has lead to the conclusion that latitudinal changes in Lythrum salicaria affects their fitness when transported to other latitudes. As well as having smaller plants that are less productive, the herbivores of this area tend to select their native plants over those from other latitudes. This may be due to plants that have evolved to bloom at different time of the year based on their original latitude, the growth/ breeding season of the herbivor at this latitude or the directional selection pressures of the herbivores on the plants that have cause resistance or tolerance of the herbivory for each individual latitude. Further studies should be taken to examine percent damage of each latitude group at each of the common gardens along the latitude stretch to further understand the effect of the herbivor on the fitness of the plant. Studies may also undertaken to see the population size of G. calmariensis and G. pusilla needed to effectively control the populations and the potential risks to surrounding environments and other similar species. 
 
+**References **
 
+Colautti, R. I., & Barrett, S. C. (2013). Rapid Adaptation to Climate Facilitates Range Expansion of an Invasive Plant. Science,342(6156), 364-366. doi:10.1126/science.1242121
 
+Colautti, R. I., Maron, J. L., & Barrett, S. C. (2009). Common garden comparisons of native and introduced plant populations: Latitudinal clines can obscure evolutionary inferences. Evolutionary Applications,2(2), 187-199. doi:10.1111/j.1752-4571.2008.00053.x
 
+Grevstad, F. S. (2006). Ten-year impacts of the biological control agents Galerucella pusilla and G. calmariensis (Coleoptera: Chrysomelidae) on purple loosestrife (Lythrum salicaria) in Central New York State. Biological Control,39(1), 1-8. doi:10.1016/j.biocontrol.2006.03.007
 
+Grey-Wilson, C. (1989). HE ILLUSTRATED FLORA OF BRITAIN AND NORTHERN EUROPE. London: Lubrecht & Cramer. Doi:0340401702
 
+Lehndal, L., & Agren, J. (2015). Latitudinal variation in resistance and tolerance to herbivory in the perennial herb Lythrum salicaria is related to intensity of herbivory and plant phenology. Evolutionary Biology,28(3).
 
+Olsson, K., & Ågren, J. (2002). Latitudinal population differentiation in phenology, life history and flower morphology in the perennial herb Lythrum salicaria. Journal of Evolutionary Biology,15(6), 983-996. doi:10.1046/j.1420-9101.2002.00457.x
 
-
-
-
-
-
-
-
-
+Yihan Wu & Robert I. Colautti, (2018). Rob Field Course Tutorial.  https://colauttilab.github.io/NGS/DifferentialExpression.html
