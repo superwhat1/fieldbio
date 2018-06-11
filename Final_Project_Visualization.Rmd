@@ -25,18 +25,18 @@ PL_miss_c = read.csv("./Lythrum/PL_miss_c")
 ```
 
 ### Check to see if data is normal
-```{r}
-mod1 = lm(Damage~LAT+VEGWT+RWT+Stem.Length+Stem.Count+RWT, data=Eugene)
+```{r include=F}
+mod1 = lm(Damage~LAT+VEGWT+RWT+Stem.Length+Stem.Count, data=Eugene)
 car::qqp(Eugene$Damage, "norm")
-#plot(density(Eugene$Damage)) # does it fit a normal distribution?
+
 bptest(mod1) #check for homoskedastity
 summary(mod1) 
-#plot(mod1)
 mod1.mVEGWT<-update(mod1,.~. - VEGWT)
+summary(mod1.mVEGWT)
 anova(mod1,mod1.mVEGWT)
 
 mod1.mLAT<-update(mod1.mVEGWT,.~. - LAT)
-anova(mod1.mVEGWT,mod1.mLAT)
+#anova(mod1.mVEGWT,mod1.mLAT)
 
 mod1<-mod1.mLAT
 summary(mod1)
@@ -48,139 +48,184 @@ summary(mod1)
 4. Previous years root weight is slightly significantly correlated to Damage
 5. No apparent correlation between LAT and Damage FOR NOW --- CORRELATION IS SHOWN LATER
 
-
-
 ### Group the values
-```{r}
+```{r include=F}
 diff = max(Eugene$LAT, na.rm = T)-min(Eugene$LAT, na.rm = T)
 cutoff = diff/3.0
 Min_LAT =min(Eugene$LAT, na.rm = T)
 
+# Fix incorectly input data
+Eugene$Stem.Length[Eugene$Stem.Length==115.0]=11.5
 # NA is evaluated as a value within the South range, so we remove those columns/ make them zeros
 Eugene = Eugene[Eugene$FAMFULL!='P137',]
 Eugene = Eugene[Eugene$FAMFULL!='P176',]
 
 #Make new column Origin, group by LAT and replace with 1_North, 2_Mid and 3_South
 Eugene$Origin = Eugene$LAT
-Eugene$Origin[Eugene$Origin >= Min_LAT & Eugene$Origin<= Min_LAT+cutoff ] = '3_South'
-Eugene$Origin[Eugene$Origin > Min_LAT+cutoff & Eugene$Origin <=Min_LAT+2*cutoff]= '2_Mid'
-Eugene$Origin[Eugene$Origin > Min_LAT+2*cutoff]= '1_North'
+Eugene$Origin[Eugene$Origin >= Min_LAT & Eugene$Origin< Min_LAT+cutoff ] = '3_South'
+Eugene$Origin[Eugene$Origin >= Min_LAT+cutoff & Eugene$Origin <Min_LAT+2*cutoff]= '2_Mid'
+Eugene$Origin[Eugene$Origin >= Min_LAT+2*cutoff]= '1_North'
 
 ```
 
 ### Group by FAMFULL, POP and Origin. 
 ###### Get means for groups 
-```{r}
+```{r include=F}
 FAM_mean = ddply(Eugene,~FAMFULL,summarise,LAT_mean=mean(LAT),Dam_mean=mean(Damage), SL_mean=mean(Stem.Length), SC_mean = mean(Stem.Count), VEGWT_mean=mean(VEGWT,na.rm = T), RWT_mean=mean(RWT, na.rm=T), PREV_mean=mean(PREV, na.rm = T))
 
 POP_mean = ddply(Eugene,~POP,summarise,LAT_mean=mean(LAT),Dam_mean=mean(Damage), SL_mean=mean(Stem.Length), SC_mean = mean(Stem.Count), VEGWT_mean=mean(VEGWT,na.rm = T), RWT_mean=mean(RWT, na.rm=T), PREV_mean=mean(PREV, na.rm = T))
 write.csv(POP_mean,'./Lythrum/POP_mean.csv', row.names = F)
 
+POP_mean$Origin = POP_mean$LAT_mean
+POP_mean$Origin[POP_mean$Origin >= Min_LAT & POP_mean$Origin< Min_LAT+cutoff ] = '3_South'
+POP_mean$Origin[POP_mean$Origin >= Min_LAT+cutoff & POP_mean$Origin <Min_LAT+2*cutoff]= '2_Mid'
+POP_mean$Origin[POP_mean$Origin >= Min_LAT+2*cutoff]= '1_North'
+
+
 Origin_mean = ddply(Eugene,~Origin,summarise,LAT_mean=mean(LAT),Dam_mean=mean(Damage), SL_mean=mean(Stem.Length), SC_mean = mean(Stem.Count), VEGWT_mean=mean(VEGWT,na.rm = T), RWT_mean=mean(RWT, na.rm=T), PREV_mean=mean(PREV, na.rm = T))
+
 ```
 
 
 ### Analysis of ungrouped data
 ##### Damage VS...
 ```{r include=FALSE}
-mod2 = lm(Damage~LAT*Stem.Length, data=Eugene)
-summary(mod2)
-
-mod3 = lm(log(Damage+1)~LAT*Stem.Length, data=Eugene)
-summary(mod3)
-
-mod4 = lm(Damage~LAT, data=PL_match_0)
-summary(mod4)
+#NONE
 ```
 
 ##### Plant growth VS...
-```{r}
-mod7 = lm(Stem.Length~LAT, data=Eugene)
-summary(mod7)
 
+```{r include=F}
 #TEST TO SEE IF PREVIOUS YEAR AFFECTED THIS YEAR GROWTH
-mod_growthl = lm(Stem.Length~RWT*VEGWT, data=PL_match_0)
+mod_growthl = lm(Stem.Length~RWT*VEGWT, data=Eugene)
 summary(mod_growthl)
-mod_growthc = lm(Stem.Count~RWT*VEGWT, data=PL_match_0)
-summary(mod_growthc)
 
-# The previous years plant size/ growth is significantly correlated to this years stem lentgh and even more to stem count
+mod_growthc = lm(Stem.Count~RWT*VEGWT, data=Eugene)
+summary(mod_growthc)
 ```
+######TEST TO SEE IF PREVIOUS YEAR AFFECTED THIS YEAR GROWTH
+The previous years plant size/ growth is significantly correlated to this years stem lentgh(R^2adj=0.1709, R^2=0.1719,p=< 2.2e-16) 
+and even more to stem count(R^2adj=0.1291, R^2=0.1302, p=< 2.2e-16)
+
+```{r}
+Copy = Eugene
+Copy = Copy[!is.na(Copy$VEGWT),]
+
+mod_growthp = lm(Stem.Length~PREV, data=Copy)
+summary(mod_growthp)
+
+qplot(x=PREV, y=Stem.Length, data=Copy, main = "Supplemental Figure 1")+
+  geom_line(mapping=aes(x=PREV,y=predict(mod_growthp)),data=Copy,colour='green') + 
+  theme_classic()
+```
+previous years total plant weight plotted against current years plant stem length, data used for plotting is from Eugene.
+(R^2adj=0.1948, R^2=0.1951, p=< 2.2e-16). 
+positive significant correlation between the two 
 
 ### Grouped mean analysis
 #### Damage VS...
-```{r}
+```{r include=F}
 mod5 = lm(Dam_mean~VEGWT_mean, data=POP_mean)
 summary(mod5) 
-qplot(x=VEGWT_mean, y=Dam_mean, data=POP_mean)
+```
+```{r}
+qplot(x=VEGWT_mean, y=Dam_mean, data=POP_mean)+
+  geom_line(mapping=aes(x=VEGWT_mean,y=predict(mod5)),data=POP_mean,colour='green') +
+  theme_classic()
+```
+Previous years mean vegetative weight plotted against the mean damage of populations (R^2adj=0.1163, R^2=0.1629, P=0.07765)
+positive correlation
 
+```{r include=F}
 mod6 = lm(Dam_mean~SL_mean, data=POP_mean)
 summary(mod6)
-qplot(x=SL_mean, y=Dam_mean, data=POP_mean)
+```
+```{r}
+qplot(x=SL_mean, y=Dam_mean, data=POP_mean, colour=POP) +theme_classic() +
+  geom_line(mapping=aes(x=SL_mean,y=predict(mod6)),data=POP_mean,colour='green') +
+  theme_classic()
+```
 
-mod8 = lm(Dam_mean~VEGWT_mean*RWT_mean, data=POP_mean)
+Mean stem length of 2018 plotted against mean damage of populations (R^2adj=0.6004, R^2=0.6215, P=3.65e-05)
+positive correlation
+
+
+```{r include=F}
+mod7 = lm(Dam_mean~poly(RWT_mean,2), data=POP_mean)
+summary(mod7)
+```
+```{r}
+qplot(x=RWT_mean, y=Dam_mean, data=POP_mean, colour=POP) +theme_classic() +
+  geom_smooth(mapping=aes(x=RWT_mean,y=predict(mod7)),data=POP_mean,colour='green') +
+  theme_classic()
+```
+
+Previous years mean reproductive weight plotted against mean damage(R^2adj=0.05551, R^2=0.1549, P=0.2391)
+
+```{r include=F}
+POP_copy=POP_mean
+POP_copy=POP_copy[POP_copy$LAT_mean!=48.10384,]
+POP_copy=POP_copy[POP_copy$LAT_mean!=40.06813,]
+
+mod8 = lm(Dam_mean~poly(LAT_mean,2,raw=T), data=POP_copy)
 summary(mod8)
-
-mod9 = lm(Dam_mean~LAT_mean, data=POP_mean)
-summary(mod9)
-qplot(x=LAT_mean, y=Dam_mean, data=POP_mean, colour=POP) +theme_classic()
-# Has a peak LAT 
-
-
-
 ```
-#### There is significant correlation between Damage and Stem Length when Grouped by Population
-#### There is slightly significant between Damage and Vegetative weight from previous year when Grouped by Population
+```{r Figure 1}
+qplot(x=LAT_mean, y=Dam_mean, data=POP_copy, colour=POP, main="Figure1") +theme_classic() + 
+  geom_smooth(mapping=aes(x=LAT_mean, y=predict(mod8)),data=POP_copy,colour='red') +
+  theme_classic()
+```
 
+Mean latitude plotted against mean damage of populations, data used to plot is from POP_mean. The values for the point with a latitude of 48.10384 and 40.06813 were removed due to being an outlier. (R^2adj=0.3507, R^2=0.4271, P=0.01533)
+polynomial correlation of the second degree and significant 
 
-### PLOT CITY
-
-Plot of Latitude mean against Damage mean for POP_mean
-
+```{r include=F}
+O_mod = lm(Dam_mean~poly(LAT_mean,2), data=Origin_mean)
+summary(O_mod)
+```
 ```{r}
-qplot(x=SL_mean, y=Dam_mean, data=POP_mean, colour=POP) +theme_classic()
-
-```
-
-####Nice graph for Stem Length and Damage correlation
-
-
-```{r}
-qplot(x=VEGWT_mean, y=Dam_mean, data=POP_mean, colour=POP) +theme_classic()
-```
-
-Plot for Vegetative weight against Damage
-
-```{r include=FALSE}
-qplot(x=LAT, y=Stem.Length, data=PL_match_0) +theme_classic()
-#Plot of Stem Length against LAT for PL_match
-```
-
-```{r include=FALSE}
-qplot(x=LAT, y=Stem.Length, data=Eugene, colour=POP) +theme_classic()
-#Plot of Stem Length against LAT for Eugene
-
-```
-
-
-```{r}
-qplot(x=LAT_mean, y=SL_mean, data=POP_mean, colour=POP) +theme_classic()
-```
-
-Plot of Stem Length against LAT for POP_mean
-
-
-```{r}
-qplot(x=LAT_mean, y=Dam_mean, data=Origin_mean, colour = Origin, shape= Origin) +theme_classic()
-
-
+qplot(x=LAT_mean, y=Dam_mean, data=Origin_mean, colour = Origin, shape= Origin, size=I(5) ) +theme_classic()
 ```
 
 Small but significant difference in Damage associated with the Mid Origin of the plants, I will look into the areas given by the Latitude groupings. I want to see if this latitude is similar to that of the natural/original habitat of the Lythrum, before it was introduced to north america.
+Has a peak LAT 
 
+#### Plant growth VS...
+```{r include=F}
+mod9 = lm(SL_mean~poly(LAT_mean,2), data=POP_copy)
+summary(mod9)
+```
+```{r Figure 2}
+qplot( x=LAT_mean, y=SL_mean,data=POP_copy, main="Figure 2") +geom_smooth(mapping=aes(x=LAT_mean,y=predict(mod9)) ) +
+  theme_classic()
+```
+
+mean latitude plotted against mean stem length of populations, data used for plotting are from POP_mean. The values for the point with a latitude of 48.10384 was removed due to being an outlier. (R^2adj=0.3589, R^2=0.4301, P=0.01113)
+with the outlier the p value of the model is p=0.8026
+significant polynomial ditribution of data
+
+```{r include=F}
+mod10 = lm(PREV_mean~poly(LAT_mean,2), data=POP_mean)
+summary(mod10)
+```
+```{r}
+qplot( x=LAT_mean, y=PREV_mean,data=POP_mean) +geom_smooth(mapping=aes(x=LAT_mean,y=predict(mod10)) ) +
+  theme_classic()
+```
+mean latitude plotted against mean stem length of populations, data used for plotting are from POP_mean. (R^2adj=0.2358, R^2=0.3162, P=0.03952)
+significant polynomial ditribution of data
+```{r Figure 3}
+mod11 = lm(SL_mean~PREV_mean,data=POP_mean)
+summary(mod11)
+qplot( y=SL_mean, x=PREV_mean,data=POP_mean, colour=POP, main="Figure 3") +geom_line(mapping=aes(x=PREV_mean,y=predict(mod11)), colour="green" ) +
+  theme_classic()
+```
+
+mean of last years plant weight(vegetative height and reproductive weight combined) plotted against current years stem length. Data used for plotting is from POP_mean/ Table 1. (R^2adj=0.3589, R^2=0.4301, P=0.01113)
+There is a positive correlation between the two.
 
 ##Mixed effects analysis
-```{r Mixed effects}
+```{r Mixed effects, include=F}
 library(lme4)
 LMM1<-lmer(Stem.Length~LAT*Origin+(1|FAMFULL), data=Eugene)
 summary(LMM1)
@@ -188,7 +233,7 @@ summary(LMM1)
 LMM0<-lmer(Stem.Length~1+(1|FAMFULL),data=Eugene)
 summary(LMM0)
 # Different among-family variances for each Origin
-LMM2<-lmer(Stem.Length~Site*Origin+(Origin|FAMFULL),data=LyDat)
+LMM2<-lmer(Stem.Length~LAT*Origin+(Origin|FAMFULL),data=Eugene)
 summary(LMM2)
 
 # Do origins differ in among-family variance?
@@ -197,18 +242,88 @@ anova(LMM2,LMM1)
 
 ```
 
+## RDA
+transform and scale data
+```{r include=F}
+library(tidyverse)
+library(vegan)
 
-## NMDS
-```{r}
+Copy = Eugene
+Copy = Copy[!is.na(Copy$VEGWT),]
 
+dmg <-Copy[,c(6:7)] 
+dmg.hell <- decostand(dmg, "hell")
+```
+
+```{r include=F}
+var <-Copy[,c(13,17,19:20)] # Isolate my variables to make this whole code easier to read
+formulaRDA<- rda(dmg.hell ~ POP+VEGWT+RWT+LAT, data=var, scale=T) # notice my predictive variable are being scaled too.
+
+head(summary(formulaRDA))
+anova(formulaRDA, permutations=1000) # Is the RDA meaningful?
+anova.cca(formulaRDA, by="margin", permutations=1000) # Are any predictor variables meaningful?
+```
+
+```{r include=F}
+#Check to see if variables are meaningful
+varpart(dmg.hell, ~POP, ~LAT, ~ RWT + VEGWT, data=var)
 ```
 
 
+```{r visualize RDA, include=F}
+smry <- summary(formulaRDA)
+df1  <- data.frame(smry$sites[,1:2])       # RDA1 and RDA2 (for each quadrate)
+df2  <- data.frame(smry$biplot[,1:2])     # loadings for RDA1 and RDA2 (for each variable)
+rda.plot <- ggplot(df1, aes(x=RDA1, y=RDA2)) +
+  geom_point(aes(alpha=0.3)) +
+  geom_hline(yintercept=0, linetype="dotted") +
+  geom_vline(xintercept=0, linetype="dotted")  
 
 
+(formulaRDA.PLOT<-rda.plot +
+  geom_segment(data=df2, aes(x=0, xend=RDA1, y=0, yend=RDA2), 
+               color="red", arrow=arrow(length=unit(0.01,"npc"))) +
+  geom_text(data=df2, 
+            aes(x=RDA1,y=RDA2,label=rownames(df2),
+                hjust=0.5*(1-sign(RDA1)),vjust=0.5*(1-sign(RDA2))), 
+            color="red", size=4)+ theme(legend.position="none"))
+```
 
 
+## NMDS
 
+```{r Transform data into matrix, include=F}
+var2 = POP_mean[,c(3:5)]
+M <- as.matrix(var2)
+
+dist_M <- vegdist(M, method = "bray", binary = F)
+```
+
+```{r include=F}
+meta.nmds <- metaMDS(dist_M, k=2, trymax = 100) # ok so k=2 means I want 2 dimensions 
+
+#data for plotting 
+##NMDS points
+NMDS.data<-data.frame(POP=POP_mean$POP,Origin=POP_mean$Origin) 
+NMDS.data$NMDS1<-meta.nmds$points[ ,1] 
+NMDS.data$NMDS2<-meta.nmds$points[ ,2] 
+```
+
+```{r Visualize NMDS}
+ggplot(data = NMDS.data, aes(y = NMDS2, x = NMDS1))+ 
+    geom_point( aes(colour = NMDS.data$POP,shape = NMDS.data$Origin), size = 2) +
+    geom_hline(yintercept=0, linetype="dotted") +
+    geom_vline(xintercept=0, linetype="dotted") +
+    ggtitle("Figure 3")+
+      theme_classic()
+  
+```
+
+NMDS ordination diagram (axes 1 and 2) for the 20 L. salicaria populations. The damage, stem length and stem count means were factors that had significant effects on the ordination configuration. 
+
+```{r}
+heigth_damage= ddply(Eugene,~Damage,summarise,SL_mean=mean(Stem.Length))
+```
 
 
 
